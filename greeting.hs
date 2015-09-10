@@ -5,4 +5,4 @@ main = do putStrLn "Whats your name?"
           putStrLn ("Greetings Sir " ++ name)
           putStrLn "Whats your favorite color ?"
           color <- getLine
-          putStrLn ("Funny " ++ color ++ " is my favorite too " ++ name)
+          putStrLn ("Funny " ++ color ++ " is my favorite too " ++ name )
