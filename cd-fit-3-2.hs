@@ -1,6 +1,8 @@
 module Main where
 import Data.List (sortBy)
 import Text.ParserCombinators.Parsec
+import Test.QuickCheck
+import Control.Monad (liftM2, replicateM)
 
 -- parseInput parses output of "du -sb", which consists of many lines,
 -- ON MAC:  du -h 1  ~/Downloads
@@ -13,6 +15,9 @@ parseInput =
 
 -- Datatype Dir holds information about single directory - its size and name
 data Dir = Dir {dir_size::Int, dir_name::String} deriving Show
+
+instance Eq Dir where
+   (==) dirA dirB = (dir_size dirA == dir_size dirB) && (dir_name dirA == dir_name dirB)
 
 -- DirPack holds a set of directories which are to be stored on single CD.
 -- 'pack_size' could be calculated, but we will store it separately to reduce
@@ -52,3 +57,27 @@ main = do input <- getContents
           putStrLn "DEBUG: parsed:"; print dirs
           -- compute solution and print it
           putStrLn "Solution:" ; print (greedy_pack dirs)
+
+
+-- We must teach QuickCheck how to generate arbitrary "Dir"s
+instance Arbitrary Dir where
+  -- Let's just skip "coarbitrary" for now, ok?
+  -- I promise, we will get back to it later :)
+
+  -- coarbitrary = undefined
+
+  -- We generate arbitrary "Dir" by generating random size and random name
+  -- and stuffing them inside "Dir"
+  arbitrary = liftM2 Dir gen_size gen_name
+          -- Generate random size between 10 and 1400 Mb
+    where gen_size = do s <- choose (10,1400)
+                        return (s*1024*1024)
+          -- Generate random name 1 to 300 chars long, consisting of symbols "fubar/"
+          gen_name = do n <- choose (1,300)
+                        replicateM n (elements "fubar/")
+
+-- For convenience and by tradition, all QuickCheck tests begin with prefix "prop_".
+-- Assume that "ds" will be a random list of "Dir"s and code your test.
+prop_greedy_pack_is_fixpoint ds =
+  let pack = greedy_pack ds
+      in pack_size pack == pack_size (greedy_pack (dirs pack))
