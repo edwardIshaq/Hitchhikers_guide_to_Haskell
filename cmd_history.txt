@@ -1,0 +1,13 @@
+  505  ghc -O --make -prof -auto-all -o cd-fit cd-fit-4.hs 
+  506  ./cd-fit 
+  512  ./cd-fit +RTS -p
+  515  cat cd-fit.prof 
+  516  ./cd-fit +RTS -hb
+  517  cat cd-fit.hp 
+  518  hp2ps cd-fit.hp
+  open cd-fit.ps
+  519  ll
+  520  ./cd-fit +RTS -h -hbvoid
+  open cd-fit.ps
+  521  ll
+  522  hp2ps cd-fit.hp

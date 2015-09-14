@@ -49,7 +49,7 @@ dirAndSize =
      dir_name <- anyChar `manyTill` newline
      return (Dir (read size) dir_name)
 
-main = do input <- getContents
+moin = do input <- getContents
           putStrLn ("DEBUG: got input " ++ input)
           let dirs = case parse parseInput "stdin" input of
                          Left err -> error $ "Input:\n" ++ show input ++
@@ -128,10 +128,19 @@ precomputeDisksFor dirs =
 -- When we precomputed disk of all possible sizes for the given set of dirs, solution to
 -- particular problem is simple: just take the solution for the required 'media_size' and
 -- that's it!
-dynamic_pack dirs = (precomputeDisksFor dirs)!!fromInteger media_size
+-- Taken from 'cd-fit-4-3.hs'
+dynamic_pack limit dirs = (precomputeDisksFor dirs)!!(fromInteger limit)
 
 
 -- Taken from 'cd-fit-4-2.hs'
 prop_dynamic_pack_is_fixpoint ds =
-  let pack = dynamic_pack ds
-      in pack_size pack == pack_size (dynamic_pack (dirs pack))
+  let pack = dynamic_pack media_size ds
+      in pack_size pack == pack_size (dynamic_pack media_size (dirs pack))
+
+prop_dynamic_pack_small_disk ds =
+  let pack = dynamic_pack 50000 ds
+      in pack_size pack == pack_size (dynamic_pack 50000 (dirs pack))
+
+
+-- rename "old" main to "moin"
+main = quickCheck prop_dynamic_pack_small_disk
