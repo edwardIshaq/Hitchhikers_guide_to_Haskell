@@ -15,7 +15,7 @@ parseInput =
 
 
 -- Datatype Dir holds information about single directory - its size and name
-data Dir = Dir {dir_size::Int, dir_name::String} deriving Show
+data Dir = Dir {dir_size::Integer, dir_name::String} deriving Show
 
 instance Eq Dir where
    (==) dirA dirB = (dir_size dirA == dir_size dirB) && (dir_name dirA == dir_name dirB)
@@ -23,7 +23,7 @@ instance Eq Dir where
 -- DirPack holds a set of directories which are to be stored on single CD.
 -- 'pack_size' could be calculated, but we will store it separately to reduce
 -- amount of calculation
-data DirPack = DirPack {pack_size::Int, dirs::[Dir]} deriving Show
+data DirPack = DirPack {pack_size::Integer, dirs::[Dir]} deriving Show
 
 -- For simplicity, let's assume that we deal with standard 700 Mb CDs for now
 media_size = 700*1024*1024
@@ -112,7 +112,7 @@ precomputeDisksFor dirs =
          case [ DirPack (dir_size d + s) (d:ds)
                 | d <- filter ( inRange (1,limit).dir_size ) dirs
                   , dir_size d > 0
-                  , let (DirPack s ds)=precomp!!(limit - dir_size d)
+                  , let (DirPack s ds)=precomp!!fromInteger (limit - dir_size d)
                   , d `notElem` ds
               ] of
                 -- We either fail to add any dirs (probably, because all of them too big).
@@ -128,4 +128,10 @@ precomputeDisksFor dirs =
 -- When we precomputed disk of all possible sizes for the given set of dirs, solution to
 -- particular problem is simple: just take the solution for the required 'media_size' and
 -- that's it!
-dynamic_pack dirs = (precomputeDisksFor dirs)!!media_size
+dynamic_pack dirs = (precomputeDisksFor dirs)!!fromInteger media_size
+
+
+-- Taken from 'cd-fit-4-2.hs'
+prop_dynamic_pack_is_fixpoint ds =
+  let pack = dynamic_pack ds
+      in pack_size pack == pack_size (dynamic_pack (dirs pack))
