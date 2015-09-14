@@ -3,7 +3,8 @@ import Data.List (sortBy)
 import Text.ParserCombinators.Parsec
 import Test.QuickCheck
 import Control.Monad (liftM2, replicateM)
-
+import Data.Ix (inRange)
+import Data.List (maximumBy)
 -- parseInput parses output of "du -sb", which consists of many lines,
 -- ON MAC:  du -h 1  ~/Downloads
 -- each of which describes single directory
@@ -109,7 +110,7 @@ precomputeDisksFor dirs =
          --    producing the disk of size <= limit. Lets do that for all "candidate"
          --    dirs that are not yet on our disk:
          case [ DirPack (dir_size d + s) (d:ds)
-                | d <- filter ( (inRange (1,limit)).dir_size ) dirs
+                | d <- filter ( inRange (1,limit).dir_size ) dirs
                   , dir_size d > 0
                   , let (DirPack s ds)=precomp!!(limit - dir_size d)
                   , d `notElem` ds
